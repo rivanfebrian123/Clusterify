@@ -1,0 +1,22 @@
+name: Deploy MSYS2
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: msys2 {0}
+    steps:
+      - uses: actions/checkout@v2
+      - uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          update: true
+      - name: 'MSYS2 Deploy'
+        run: ./msys2_deploy.sh
+      - name: 'Upload Artifact'
+        uses: actions/upload-artifact@v2
+        with:
+          name: Clusterify
+          path: Output/Clusterify-Setup.exe
