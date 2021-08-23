@@ -2,6 +2,7 @@
 <!-- Generated with glade 3.38.1 -->
 <interface>
   <requires lib="gtk+" version="3.24"/>
+  <requires lib="libhandy" version="0.0"/>
   <object class="GtkAdjustment" id="ajs_ncluster">
     <property name="lower">1</property>
     <property name="upper">9</property>
@@ -9,16 +10,16 @@
     <property name="step-increment">1</property>
     <property name="page-increment">2</property>
   </object>
-  <object class="GtkPopover" id="popover2">
+  <object class="GtkPopover" id="pop_edit">
     <property name="can-focus">False</property>
     <child>
       <object class="GtkBox">
         <property name="visible">True</property>
         <property name="can-focus">False</property>
-        <property name="margin-start">10</property>
-        <property name="margin-end">10</property>
-        <property name="margin-top">10</property>
-        <property name="margin-bottom">10</property>
+        <property name="margin-start">6</property>
+        <property name="margin-end">6</property>
+        <property name="margin-top">6</property>
+        <property name="margin-bottom">6</property>
         <property name="orientation">vertical</property>
         <child>
           <object class="GtkBox">
@@ -32,8 +33,11 @@
                 <property name="can-focus">False</property>
                 <property name="label" translatable="yes">Thousands Separator</property>
                 <attributes>
-                  <attribute name="weight" value="semibold"/>
+                  <attribute name="weight" value="bold"/>
                 </attributes>
+                <style>
+                  <class name="dim-label"/>
+                </style>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -124,8 +128,11 @@
                 <property name="can-focus">False</property>
                 <property name="label" translatable="yes">Columns</property>
                 <attributes>
-                  <attribute name="weight" value="semibold"/>
+                  <attribute name="weight" value="bold"/>
                 </attributes>
+                <style>
+                  <class name="dim-label"/>
+                </style>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -204,8 +211,11 @@
                     <property name="can-focus">False</property>
                     <property name="label" translatable="yes">N-Cluster</property>
                     <attributes>
-                      <attribute name="weight" value="semibold"/>
+                      <attribute name="weight" value="bold"/>
                     </attributes>
+                    <style>
+                      <class name="dim-label"/>
+                    </style>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -289,10 +299,10 @@
       <object class="GtkBox">
         <property name="visible">True</property>
         <property name="can-focus">False</property>
-        <property name="margin-start">10</property>
-        <property name="margin-end">10</property>
-        <property name="margin-top">10</property>
-        <property name="margin-bottom">10</property>
+        <property name="margin-start">6</property>
+        <property name="margin-end">6</property>
+        <property name="margin-top">6</property>
+        <property name="margin-bottom">6</property>
         <property name="orientation">vertical</property>
         <child>
           <object class="GtkModelButton">
@@ -398,69 +408,102 @@
           </packing>
         </child>
         <child>
-          <object class="GtkStack" id="st_content">
+          <object class="GtkStack" id="st_contents">
             <property name="visible">True</property>
             <property name="can-focus">False</property>
             <property name="transition-duration">350</property>
             <property name="transition-type">crossfade</property>
             <child>
-              <object class="GtkScrolledWindow" id="sw_clusters">
+              <object class="GtkStack" id="st_clustering">
                 <property name="visible">True</property>
-                <property name="can-focus">True</property>
+                <property name="can-focus">False</property>
+                <property name="transition-duration">350</property>
+                <property name="transition-type">crossfade</property>
                 <child>
-                  <placeholder/>
+                  <object class="GtkScrolledWindow" id="sw_clusters">
+                    <property name="visible">True</property>
+                    <property name="can-focus">True</property>
+                    <child>
+                      <placeholder/>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="name">clusters</property>
+                    <property name="title" translatable="yes">Clusters</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkScrolledWindow" id="sw_elbow">
+                    <property name="visible">True</property>
+                    <property name="can-focus">True</property>
+                    <child>
+                      <placeholder/>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="name">elbow</property>
+                    <property name="title" translatable="yes">Elbow</property>
+                    <property name="position">1</property>
+                  </packing>
                 </child>
               </object>
               <packing>
-                <property name="name">clusters</property>
-                <property name="title" translatable="yes">Clusters</property>
+                <property name="name">clustering</property>
+                <property name="title" translatable="yes">Clustering</property>
+                <property name="icon-name">starred-symbolic</property>
               </packing>
             </child>
             <child>
-              <object class="GtkScrolledWindow" id="sw_elbow">
+              <object class="GtkStack" id="st_exploratory">
                 <property name="visible">True</property>
-                <property name="can-focus">True</property>
+                <property name="can-focus">False</property>
+                <property name="transition-duration">350</property>
+                <property name="transition-type">crossfade</property>
                 <child>
                   <placeholder/>
                 </child>
               </object>
               <packing>
-                <property name="name">elbow</property>
-                <property name="title" translatable="yes">Elbow</property>
+                <property name="name">exploratory</property>
+                <property name="title" translatable="yes">Exploratory</property>
+                <property name="icon-name">bookmark-new-symbolic</property>
                 <property name="position">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkStack" id="st_association">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="transition-duration">350</property>
+                <property name="transition-type">crossfade</property>
+                <child>
+                  <placeholder/>
+                </child>
+              </object>
+              <packing>
+                <property name="name">association</property>
+                <property name="title" translatable="yes">Association</property>
+                <property name="icon-name">send-to-symbolic</property>
+                <property name="position">2</property>
               </packing>
             </child>
           </object>
           <packing>
-            <property name="name">content</property>
-            <property name="title" translatable="yes">content</property>
+            <property name="name">contents</property>
+            <property name="title" translatable="yes">contents</property>
             <property name="position">2</property>
           </packing>
         </child>
       </object>
     </child>
     <child type="titlebar">
-      <object class="GtkHeaderBar" id="hb">
+      <object class="HdyHeaderBar" id="hb">
         <property name="visible">True</property>
         <property name="can-focus">False</property>
+        <property name="has-subtitle">False</property>
+        <property name="custom-title">rv_sts</property>
         <property name="show-close-button">True</property>
-        <child type="title">
-          <object class="GtkRevealer" id="rv_sts">
-            <property name="width-request">300</property>
-            <property name="visible">True</property>
-            <property name="can-focus">False</property>
-            <property name="transition-type">slide-up</property>
-            <property name="transition-duration">1000</property>
-            <child>
-              <object class="GtkStackSwitcher">
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
-                <property name="homogeneous">True</property>
-                <property name="stack">st_content</property>
-              </object>
-            </child>
-          </object>
-        </child>
+        <property name="transition-duration">500</property>
         <child>
           <object class="GtkFileChooserButton" id="fc">
             <property name="visible">True</property>
@@ -472,9 +515,6 @@
             <property name="width-chars">7</property>
             <signal name="file-set" handler="update_file" swapped="no"/>
           </object>
-          <packing>
-            <property name="position">1</property>
-          </packing>
         </child>
         <child>
           <object class="GtkRevealer" id="rv_edit">
@@ -483,12 +523,12 @@
             <property name="transition-type">slide-left</property>
             <property name="transition-duration">1000</property>
             <child>
-              <object class="GtkMenuButton" id="mb_edit">
+              <object class="GtkMenuButton" id="mb_edit_clustering">
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
                 <property name="focus-on-click">False</property>
                 <property name="receives-default">True</property>
-                <property name="popover">popover2</property>
+                <property name="popover">pop_edit</property>
                 <child>
                   <object class="GtkBox">
                     <property name="visible">True</property>
@@ -524,7 +564,7 @@
             </child>
           </object>
           <packing>
-            <property name="position">2</property>
+            <property name="position">1</property>
           </packing>
         </child>
         <child>
@@ -545,10 +585,43 @@
           </object>
           <packing>
             <property name="pack-type">end</property>
+            <property name="position">2</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkButton" id="b_view">
+            <property name="visible">True</property>
+            <property name="can-focus">True</property>
+            <property name="receives-default">True</property>
+            <child>
+              <object class="GtkImage">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="icon-name">add</property>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="pack-type">end</property>
             <property name="position">3</property>
           </packing>
         </child>
       </object>
     </child>
   </template>
+  <object class="GtkRevealer" id="rv_sts">
+    <property name="width-request">300</property>
+    <property name="visible">True</property>
+    <property name="can-focus">False</property>
+    <property name="transition-type">crossfade</property>
+    <property name="transition-duration">1000</property>
+    <child>
+      <object class="HdyViewSwitcher">
+        <property name="visible">True</property>
+        <property name="can-focus">False</property>
+        <property name="margin-left">30</property>
+        <property name="stack">st_contents</property>
+      </object>
+    </child>
+  </object>
 </interface>

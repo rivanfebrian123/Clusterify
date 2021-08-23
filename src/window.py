@@ -33,7 +33,7 @@ from threading import Thread
 from .data import Data
 
 
-@Gtk.Template(resource_path='/org/example/App/window.ui')
+@Gtk.Template(resource_path='/org/gnome/Clusterify/window.ui')
 class ClusterifyWindow(Gtk.ApplicationWindow):
     __gtype_name__ = 'ClusterifyWindow'
 
@@ -50,7 +50,7 @@ class ClusterifyWindow(Gtk.ApplicationWindow):
     rb_comma = Gtk.Template.Child()
     rb_period = Gtk.Template.Child()
     rb_space = Gtk.Template.Child()
-    mb_edit = Gtk.Template.Child()
+    mb_edit_clustering = Gtk.Template.Child()
 
     # On Linux, Matplotlib can only draw on ScrolledWindow for some reason
 
@@ -114,7 +114,7 @@ class ClusterifyWindow(Gtk.ApplicationWindow):
     def idle(self, cw=None):
         self.partial_idle()
         self.rv_edit.set_reveal_child(False)
-        self.mb_edit.set_active(False)
+        self.mb_edit_clustering.set_active(False)
 
     def busy(self):
         self.idle()
@@ -159,7 +159,7 @@ class ClusterifyWindow(Gtk.ApplicationWindow):
 
         GLib.idle_add(self.unbusy)
         GLib.idle_add(self.rv_edit.set_reveal_child, True)
-        GLib.idle_add(self.mb_edit.set_active, True)
+        GLib.idle_add(self.mb_edit_clustering.set_active, True)
 
     @Gtk.Template.Callback()
     def update_file(self, cw=None):
@@ -241,8 +241,9 @@ class ClusterifyWindow(Gtk.ApplicationWindow):
         self.rv_ncluster.set_reveal_child(len(cols) >= 2)
         self.rv_sts.set_reveal_child(True)
         self.sb_ncluster.set_editable(not self.tb_auto.get_active())
-        self.st_main.set_visible_child_name("content")
+        self.st_main.set_visible_child_name("contents")
 
     @Gtk.Template.Callback()
     def update(self, cw=None):
         Thread(target=GLib.idle_add, args=[self._update]).start()
+
