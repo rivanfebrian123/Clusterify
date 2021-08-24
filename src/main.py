@@ -30,8 +30,7 @@ import sys
 import traceback
 import gi
 gi.require_version('Gtk', '3.0')
-gi.require_version('Handy', '1')
-from gi.repository import Gtk, Gio, GLib, Handy
+from gi.repository import Gtk, Gio, GLib
 from .window import ClusterifyWindow
 
 
@@ -39,7 +38,6 @@ class Application(Gtk.Application):
     def __init__(self):
         super().__init__(application_id='org.gnome.Clusterify',
                          flags=Gio.ApplicationFlags.FLAGS_NONE)
-        Handy.init()
         self.win = self.props.active_window
 
     def on_dlg_hide(self, widget, data):

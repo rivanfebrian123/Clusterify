@@ -1,14 +1,12 @@
 #! /bin/bash
 set -eo pipefail
 
-rm -rf dist
 rm -rf build
-rm -rf Output
-rm -rf app
-mkdir -p dist
 mkdir -p build
-mkdir -p Output
-mkdir -p app
+cp build-aux/py.spec build/py.spec
+cp build-aux/inno.iss build/inno.iss
+
+cd build
 
 pacman -Sy --noconfirm --needed \
     mingw-w64-x86_64-meson \
@@ -22,43 +20,44 @@ pacman -Sy --noconfirm --needed \
     mingw-w64-x86_64-python-numpy \
     mingw-w64-x86_64-python-pandas \
     mingw-w64-x86_64-python-scikit-learn \
-    mingw-w64-x86_64-python-matplotlib
-wget -O build/inno.exe https://jrsoftware.org/download.php/is.exe
-innoextract -m build/inno.exe
+    mingw-w64-x86_64-python-matplotlib \
+    mingw-w64-x86_64-libhandy
+wget -O inno.exe https://jrsoftware.org/download.php/is.exe
+innoextract -m inno.exe
 pip install pyinstaller
 
-meson . build
-meson install -C build
+meson .. ../build
+meson install
 
-wget -O build/fluent-icon.tar.xz https://github.com/vinceliuice/Fluent-icon-theme/raw/master/release/Fluent.tar.xz
+wget -O fluent-icon.tar.xz https://github.com/vinceliuice/Fluent-icon-theme/raw/master/release/Fluent.tar.xz
 
 set +e
-/bin/tar -xf build/fluent-icon.tar.xz -C build \
+/bin/tar -xf fluent-icon.tar.xz \
     'Fluent/symbolic/actions' 'Fluent/symbolic/mimetypes' \
     'Fluent/symbolic/status/process-working-symbolic.svg' \
     'Fluent/icon-theme.cache' 'Fluent/index.theme' \
     'Fluent/scalable/apps/system-search.svg'
 set -e
 
-mv 'build/Fluent' 'build/fluent-icon'
+mv 'Fluent' 'fluent-icon'
 rm -rf /mingw64/share/icons/Fluent
 mkdir -p /mingw64/share/icons/Fluent
-cp -rf build/fluent-icon/* /mingw64/share/icons/Fluent
+cp -rf fluent-icon/* /mingw64/share/icons/Fluent
 
-wget -O build/fluent-theme.tar.xz https://github.com/vinceliuice/Fluent-gtk-theme/raw/master/release/Fluent.tar.xz
+wget -O fluent-theme.tar.xz https://github.com/vinceliuice/Fluent-gtk-theme/raw/master/release/Fluent.tar.xz
 
 set +e
-/bin/tar -xf build/fluent-theme.tar.xz -C build 'Fluent-light-compact'
+/bin/tar -xf fluent-theme.tar.xz 'Fluent-light-compact'
 set -e
 
-mv 'build/Fluent-light-compact' 'build/fluent-theme'
+mv 'Fluent-light-compact' 'fluent-theme'
 rm -rf /mingw64/share/themes/Fluent
 mkdir -p /mingw64/share/themes/Fluent
-cp -rf build/fluent-theme/* /mingw64/share/themes/Fluent
+cp -rf fluent-theme/* /mingw64/share/themes/Fluent
 
 mkdir -p /mingw64/etc/gtk-3.0
 echo -e "[Settings]\ngtk-theme-name=Fluent\ngtk-icon-theme-name=Fluent" > /mingw64/etc/gtk-3.0/settings.ini
 glib-compile-schemas /mingw64/share/glib-2.0/schemas
 
-pyinstaller build-aux/clusterify.spec --clean
-./app/iscc build-aux/inno.iss
+pyinstaller clusterify.spec --clean
+./app/iscc inno.iss

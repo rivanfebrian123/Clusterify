@@ -336,7 +336,7 @@
     </child>
   </object>
   <template class="ClusterifyWindow" parent="GtkApplicationWindow">
-    <property name="width-request">875</property>
+    <property name="width-request">850</property>
     <property name="height-request">625</property>
     <property name="can-focus">False</property>
     <property name="window-position">center</property>
@@ -430,6 +430,7 @@
                   <packing>
                     <property name="name">clusters</property>
                     <property name="title" translatable="yes">Clusters</property>
+                    <property name="icon-name">starred-symbolic</property>
                   </packing>
                 </child>
                 <child>
@@ -443,6 +444,7 @@
                   <packing>
                     <property name="name">elbow</property>
                     <property name="title" translatable="yes">Elbow</property>
+                    <property name="icon-name">view-statistics</property>
                     <property name="position">1</property>
                   </packing>
                 </child>
@@ -593,8 +595,9 @@
             <property name="visible">True</property>
             <property name="can-focus">True</property>
             <property name="receives-default">True</property>
+            <signal name="clicked" handler="update_view" swapped="no"/>
             <child>
-              <object class="GtkImage">
+              <object class="GtkImage" id="img_view">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
                 <property name="icon-name">add</property>
@@ -619,8 +622,12 @@
       <object class="HdyViewSwitcher">
         <property name="visible">True</property>
         <property name="can-focus">False</property>
-        <property name="margin-left">30</property>
+        <property name="margin-left">6</property>
+        <property name="margin-right">6</property>
+        <property name="policy">wide</property>
+        <property name="narrow-ellipsize">start</property>
         <property name="stack">st_contents</property>
+        <signal name="button-release-event" handler="update_contents" swapped="no"/>
       </object>
     </child>
   </object>

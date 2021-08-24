@@ -28,8 +28,10 @@
 
 import gi
 gi.require_version('Gtk', '3.0')
-from gi.repository import Gtk, Gio, GLib
+gi.require_version('Handy', '1')
+from gi.repository import Gtk, Gio, GLib, Handy
 from threading import Thread
+from itertools import cycle
 from .data import Data
 
 
@@ -41,6 +43,7 @@ class ClusterifyWindow(Gtk.ApplicationWindow):
     fc = Gtk.Template.Child()
     sp = Gtk.Template.Child()
     st_main = Gtk.Template.Child()
+    st_contents = Gtk.Template.Child()
     lb_cols = Gtk.Template.Child()
     rv_ncluster = Gtk.Template.Child()
     sb_ncluster = Gtk.Template.Child()
@@ -51,6 +54,7 @@ class ClusterifyWindow(Gtk.ApplicationWindow):
     rb_period = Gtk.Template.Child()
     rb_space = Gtk.Template.Child()
     mb_edit_clustering = Gtk.Template.Child()
+    img_view = Gtk.Template.Child()
 
     # On Linux, Matplotlib can only draw on ScrolledWindow for some reason
 
@@ -68,8 +72,11 @@ class ClusterifyWindow(Gtk.ApplicationWindow):
     log = None
     last_ncluster = None
     last_cols = None
+    iter_view = None
+    next_view = None
 
     def __init__(self, log, **kwargs):
+        Handy.init()
         super().__init__(**kwargs)
         self.log = log
         Thread(target=self.init).start()
@@ -81,7 +88,6 @@ class ClusterifyWindow(Gtk.ApplicationWindow):
         from matplotlib.backends.backend_gtk3agg import FigureCanvasGTK3Agg as Canvas
 
         self.fi_clusters = plt.figure()
-        self.fi_clusters.subplots_adjust(bottom=0.175)
         self.cv_clusters = Canvas(self.fi_clusters)
         self.cv_clusters.show()
         self.sw_clusters.add(self.cv_clusters)
@@ -97,6 +103,7 @@ class ClusterifyWindow(Gtk.ApplicationWindow):
         import matplotlib.pyplot as plt
         GLib.idle_add(self._init, matplotlib, plt)
         GLib.idle_add(self.unbusy)
+        GLib.idle_add(self.cycle_view)
 
     def get_sep(self):
         if self.rb_comma.get_active():
@@ -165,6 +172,33 @@ class ClusterifyWindow(Gtk.ApplicationWindow):
     def update_file(self, cw=None):
         Thread(target=self._update_file).start()
 
+    def cycle_view(self):
+        w = self.st_contents.get_visible_child()
+        self.iter_view = cycle(w.get_children())
+
+        try:
+            for i in self.iter_view:
+                if i is w.get_visible_child():
+                    break
+
+            self.next_view = next(self.iter_view)
+        except:
+            return False
+
+        self.img_view.set_from_icon_name(w.child_get_property(
+            self.next_view, "icon-name"), Gtk.IconSize.BUTTON)
+
+    @Gtk.Template.Callback()
+    def update_contents(self, cw=None, data=None):
+        self.cycle_view()
+
+    @Gtk.Template.Callback()
+    def update_view(self, cw=None, data=None):
+        w = self.st_contents.get_visible_child()
+
+        w.set_visible_child(self.next_view)
+        self.cycle_view()
+
     def _update(self):
         # depends on update_file
         cols = []
@@ -220,13 +254,16 @@ class ClusterifyWindow(Gtk.ApplicationWindow):
                 return self.log(e)
 
             if len(cols) == 1:
+                self.fi_clusters.subplots_adjust(left=0.13, bottom=0.18)
                 self.sp_clusters.plot(sample[cols[0]])
             elif len(cols) == 2:
+                self.fi_clusters.subplots_adjust(left=0.15, bottom=0.2)
                 self.sp_clusters.scatter(sample[cols[0]], sample[cols[1]],
                                          c=clusters, cmap="rainbow")
                 self.sp_clusters.set_xlabel(cols[0])
                 self.sp_clusters.set_ylabel(cols[1])
             elif len(cols) >= 3:
+                self.fi_clusters.subplots_adjust(left=0.095, bottom=0.16)
                 self.sp_clusters.scatter(sample[cols[0]], sample[cols[1]],
                                          sample[cols[2]], c=clusters,
                                          cmap="rainbow")

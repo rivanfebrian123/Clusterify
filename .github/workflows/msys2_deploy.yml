@@ -19,4 +19,4 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: Clusterify
-          path: Output/Clusterify-Setup.exe
+          path: build/Output/Clusterify-Setup.exe
