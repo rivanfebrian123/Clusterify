@@ -264,16 +264,24 @@
           </packing>
         </child>
         <child>
-          <object class="GtkButton" id="b_view">
+          <object class="GtkRevealer" id="rv_view">
             <property name="visible">True</property>
-            <property name="can-focus">True</property>
-            <property name="receives-default">True</property>
-            <signal name="clicked" handler="update_view" swapped="no"/>
+            <property name="can-focus">False</property>
+            <property name="transition-type">slide-right</property>
+            <property name="transition-duration">350</property>
             <child>
-              <object class="GtkImage" id="img_view">
+              <object class="GtkButton" id="b_view">
                 <property name="visible">True</property>
-                <property name="can-focus">False</property>
-                <property name="icon-name">add</property>
+                <property name="can-focus">True</property>
+                <property name="receives-default">True</property>
+                <signal name="clicked" handler="update_view" swapped="no"/>
+                <child>
+                  <object class="GtkImage" id="img_view">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="icon-name">add</property>
+                  </object>
+                </child>
               </object>
             </child>
           </object>

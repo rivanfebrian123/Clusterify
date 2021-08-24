@@ -1,0 +1,8 @@
+@keyframes wh {
+  from { box-shadow: inset 0px 0px 2px @theme_selected_bg_color; }
+  to { box-shadow: inset 0px 0px 8px @theme_selected_bg_color; }
+}
+
+.h {
+  animation: wh 0.5s infinite alternate;
+}

@@ -3,5 +3,6 @@
   <gresource prefix="/org/gnome/Clusterify">
     <file>window.ui</file>
     <file>clustering.ui</file>
+    <file>main.css</file>
   </gresource>
 </gresources>

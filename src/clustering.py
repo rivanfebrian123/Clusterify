@@ -87,6 +87,7 @@ class ClusteringStack(Gtk.Stack):
     def partial_idle(self, cw=None):
         self.rv_ncluster.set_reveal_child(False)
 
+    @Gtk.Template.Callback()
     def update(self, cw=None):
         # depends on partial_update_file
         cols = []
@@ -167,6 +168,7 @@ class ClusteringStack(Gtk.Stack):
         self.rv_ncluster.set_reveal_child(len(cols) >= 2)
         self.sb_ncluster.set_editable(not self.tb_auto.get_active())
 
+    @Gtk.Template.Callback()
     def partial_update_file(self, cw=None):
         self.data.prep(self.get_sep())
 
@@ -179,3 +181,7 @@ class ClusteringStack(Gtk.Stack):
             self.lb_cols.prepend(w)
 
         self.lb_cols.show_all()
+
+    @Gtk.Template.Callback()
+    def unhighlight(self, cw=None):
+        self.mb_edit.get_style_context().remove_class('h')

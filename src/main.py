@@ -30,7 +30,7 @@ import sys
 import traceback
 import gi
 gi.require_version('Gtk', '3.0')
-from gi.repository import Gtk, Gio, GLib
+from gi.repository import Gtk, Gio, GLib, Gdk
 from .window import ClusterifyWindow
 
 
@@ -46,6 +46,13 @@ class Application(Gtk.Application):
 
     def do_activate(self):
         if not self.win:
+            css = Gtk.CssProvider()
+            css.load_from_resource('/org/gnome/Clusterify/main.css')
+            scr = Gdk.Screen.get_default()
+            ctx = Gtk.StyleContext()
+
+            ctx.add_provider_for_screen(scr, css, Gtk.STYLE_PROVIDER_PRIORITY_USER)
+
             self.win = ClusterifyWindow(application=self, log=self.log_error)
 
             self.dlg_about = Gtk.AboutDialog(
