@@ -59,5 +59,5 @@ mkdir -p /mingw64/etc/gtk-3.0
 echo -e "[Settings]\ngtk-theme-name=Fluent\ngtk-icon-theme-name=Fluent" > /mingw64/etc/gtk-3.0/settings.ini
 glib-compile-schemas /mingw64/share/glib-2.0/schemas
 
-pyinstaller clusterify.spec --clean
+pyinstaller py.spec --clean
 ./app/iscc inno.iss

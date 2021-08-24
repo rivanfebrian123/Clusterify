@@ -29,10 +29,11 @@
 import gi
 gi.require_version('Gtk', '3.0')
 gi.require_version('Handy', '1')
-from gi.repository import Gtk, Gio, GLib, Handy
+from gi.repository import Gtk, GLib, Handy
 from threading import Thread
 from itertools import cycle
 from .data import Data
+from .clustering import ClusteringStack
 
 
 @Gtk.Template(resource_path='/org/gnome/Clusterify/window.ui')
@@ -45,35 +46,16 @@ class ClusterifyWindow(Gtk.ApplicationWindow):
     sq = Gtk.Template.Child()
     st_main = Gtk.Template.Child()
     st_contents = Gtk.Template.Child()
-    lb_cols = Gtk.Template.Child()
-    rv_ncluster = Gtk.Template.Child()
-    sb_ncluster = Gtk.Template.Child()
-    tb_auto = Gtk.Template.Child()
     rv_edit = Gtk.Template.Child()
-    rv_sts = Gtk.Template.Child()
-    rv_bar = Gtk.Template.Child()
-    rb_comma = Gtk.Template.Child()
-    rb_period = Gtk.Template.Child()
-    rb_space = Gtk.Template.Child()
-    mb_edit_clustering = Gtk.Template.Child()
+    rv_vs = Gtk.Template.Child()
     img_view = Gtk.Template.Child()
+    vsb = Gtk.Template.Child()
 
     # On Linux, Matplotlib can only draw on ScrolledWindow for some reason
 
-    sw_clusters = Gtk.Template.Child()
-    fi_clusters = None
-    sp_clusters = None
-    cv_clusters = None
-
-    sw_elbow = Gtk.Template.Child()
-    fi_elbow = None
-    sp_elbow = None
-    cv_elbow = None
-
     data = Data()
+    clustering = None
     log = None
-    last_ncluster = None
-    last_cols = None
     iter_view = None
     next_view = None
 
@@ -81,57 +63,50 @@ class ClusterifyWindow(Gtk.ApplicationWindow):
         Handy.init()
         super().__init__(**kwargs)
         self.log = log
-        Thread(target=self.init).start()
+        Thread(target=self._init).start()
 
-    def _init(self, matplotlib, plt):
+    def __init(self, matplotlib, plt):
         matplotlib.use('GTK3Agg')
         from matplotlib.backends.backend_gtk3agg import FigureCanvasGTK3Agg as Canvas
         plt.style.use('seaborn')
         plt.ioff()
 
-        self.fi_clusters = plt.figure()
-        self.cv_clusters = Canvas(self.fi_clusters)
-        self.cv_clusters.show()
-        self.sw_clusters.add(self.cv_clusters)
+        self.clustering = ClusteringStack(self.data, self.log, plt, Canvas)
 
-        self.fi_elbow = plt.figure()
-        self.fi_elbow.subplots_adjust(left=0.15, bottom=0.18)
-        self.cv_elbow = Canvas(self.fi_elbow)
-        self.cv_elbow.show()
-        self.sw_elbow.add(self.cv_elbow)
+        self.st_contents.add_titled(self.clustering, 'clustering', 'Clustering')
+        self.st_contents.child_set_property(self.clustering, 'icon-name', 'starred-symbolic')
+        self.rv_edit.add(self.clustering.mb_edit)
 
-    def init(self):
+        self.cycle_view()
+        self.flexy()
+
+        self.sq.connect("notify::visible-child", self.flexy)
+        self.rv_vs.connect("notify::reveal-child", self.flexy)
+
+        self.unbusy()
+
+    def _init(self):
         import matplotlib
         import matplotlib.pyplot as plt
 
-        GLib.idle_add(self._init, matplotlib, plt)
-        GLib.idle_add(self.unbusy)
-        GLib.idle_add(self.cycle_view)
-        GLib.idle_add(self.flexy)
-
-        self.sq.connect("notify::visible-child", self.flexy)
-
-    def get_sep(self):
-        if self.rb_comma.get_active():
-            return ','
-        elif self.rb_period.get_active():
-            return '.'
-        elif self.rb_space.get_active():
-            return ' '
+        GLib.idle_add(self.__init, matplotlib, plt)
 
     def flexy(self, cw=None, data=None):
-        self.rv_bar.set_reveal_child(
-            self.sq.get_visible_child() is not self.rv_sts)
+        if self.rv_vs.get_reveal_child():
+            self.vsb.set_reveal(
+                self.sq.get_visible_child() is not self.rv_vs)
+        else:
+            self.vsb.set_reveal(False)
 
     def partial_idle(self, cw=None):
         self.st_main.set_visible_child_name("splash")
-        self.rv_sts.set_reveal_child(False)
-        self.rv_ncluster.set_reveal_child(False)
+        self.rv_vs.set_reveal_child(False)
+        self.clustering.partial_idle()
 
     def idle(self, cw=None):
         self.partial_idle()
         self.rv_edit.set_reveal_child(False)
-        self.mb_edit_clustering.set_active(False)
+        self.rv_edit.set_sensitive(False)
 
     def busy(self):
         self.idle()
@@ -142,27 +117,25 @@ class ClusterifyWindow(Gtk.ApplicationWindow):
             w.set_sensitive(False)
 
     def unbusy(self):
-        self.st_main.set_visible_child_name("splash")
-
         for w in self.hb.get_children():
             w.set_sensitive(True)
 
         self.sp.stop()
 
-    @Gtk.Template.Callback()
     def partial_update_file(self, cw=None):
-        self.data.prep(self.get_sep())
-
-        for w in self.lb_cols.get_children():
-            self.lb_cols.remove(w)
-
-        for i in self.data.get_columns_ori():
-            w = Gtk.CheckButton.new_with_label(i)
-            w.connect("toggled", self.update)
-            self.lb_cols.prepend(w)
-
-        self.lb_cols.show_all()
         self.partial_idle()
+        self.clustering.partial_update_file()
+
+    def __update_file(self):
+        self.partial_update_file()
+
+        self.rv_vs.set_reveal_child(True)
+        self.rv_edit.set_reveal_child(True)
+        self.rv_edit.set_sensitive(True)
+        self.st_main.set_visible_child_name("contents")
+
+        self.unbusy()
+
 
     def _update_file(self):
         GLib.idle_add(self.busy)
@@ -172,11 +145,7 @@ class ClusterifyWindow(Gtk.ApplicationWindow):
         except BaseException as e:
             return self.log(e)
 
-        GLib.idle_add(self.partial_update_file)
-
-        GLib.idle_add(self.unbusy)
-        GLib.idle_add(self.rv_edit.set_reveal_child, True)
-        GLib.idle_add(self.mb_edit_clustering.set_active, True)
+        GLib.idle_add(self.__update_file)
 
     @Gtk.Template.Callback()
     def update_file(self, cw=None):
@@ -206,92 +175,11 @@ class ClusterifyWindow(Gtk.ApplicationWindow):
     def update_view(self, cw=None, data=None):
         w = self.st_contents.get_visible_child()
 
-        w.set_visible_child(self.next_view)
+        if self.next_view:
+            w.set_visible_child(self.next_view)
+
         self.cycle_view()
 
-    def _update(self):
-        # depends on update_file
-        cols = []
-
-        for w in self.lb_cols.get_children():
-            c = w.get_children()[0]
-
-            if c.get_active():
-                cols.append(c.get_label())
-
-        if not cols:
-            self.partial_idle()
-            return None
-
-        try:
-            self.data.train(cols)
-        except BaseException as e:
-            return self.log(e)
-
-        sample = self.data.get_sample()
-
-        if self.last_cols != cols:
-            self.fi_elbow.clear()
-            self.sp_elbow = self.fi_elbow.add_subplot()
-
-            try:
-                self.sp_elbow.plot(range(1, 10), self.data.get_elbow())
-            except BaseException as e:
-                return self.log(e)
-
-            self.cv_elbow.draw()
-
-        if self.tb_auto.get_active():
-            try:
-                self.sb_ncluster.set_value(self.data.get_bncluster())
-            except BaseException as e:
-                return self.log(e)
-
-        ncluster = self.sb_ncluster.get_value_as_int()
-
-        if self.last_cols != cols or self.last_ncluster != ncluster:
-            self.fi_clusters.clear()
-
-            if len(cols) >= 3:
-                self.sp_clusters = self.fi_clusters.add_subplot(
-                    projection="3d")
-            else:
-                self.sp_clusters = self.fi_clusters.add_subplot()
-                self.sp_clusters.ticklabel_format(scilimits=[-3, 4])
-
-            try:
-                clusters = self.data.get_clusters(ncluster)
-            except BaseException as e:
-                return self.log(e)
-
-            if len(cols) == 1:
-                self.fi_clusters.subplots_adjust(left=0.15, bottom=0.18)
-                self.sp_clusters.plot(sample[cols[0]])
-            elif len(cols) == 2:
-                self.fi_clusters.subplots_adjust(left=0.18, bottom=0.215)
-                self.sp_clusters.scatter(sample[cols[0]], sample[cols[1]],
-                                         c=clusters, cmap="rainbow")
-                self.sp_clusters.set_xlabel(cols[0])
-                self.sp_clusters.set_ylabel(cols[1])
-            elif len(cols) >= 3:
-                self.fi_clusters.subplots_adjust(left=0.095, bottom=0.16)
-                self.sp_clusters.scatter(sample[cols[0]], sample[cols[1]],
-                                         sample[cols[2]], c=clusters,
-                                         cmap="rainbow")
-                self.sp_clusters.set_xlabel(cols[0])
-                self.sp_clusters.set_ylabel(cols[1])
-                self.sp_clusters.set_zlabel(cols[2])
-
-            self.cv_clusters.draw()
-
-        self.last_cols = cols
-        self.last_ncluster = ncluster
-        self.rv_ncluster.set_reveal_child(len(cols) >= 2)
-        self.rv_sts.set_reveal_child(True)
-        self.sb_ncluster.set_editable(not self.tb_auto.get_active())
-        self.st_main.set_visible_child_name("contents")
-
-    @Gtk.Template.Callback()
-    def update(self, cw=None):
-        Thread(target=GLib.idle_add, args=[self._update]).start()
+    # def update(self, cw=None):
+    #     Thread(target=GLib.idle_add, args=[self._update]).start()
 
