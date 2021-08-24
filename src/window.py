@@ -42,6 +42,7 @@ class ClusterifyWindow(Gtk.ApplicationWindow):
     hb = Gtk.Template.Child()
     fc = Gtk.Template.Child()
     sp = Gtk.Template.Child()
+    sq = Gtk.Template.Child()
     st_main = Gtk.Template.Child()
     st_contents = Gtk.Template.Child()
     lb_cols = Gtk.Template.Child()
@@ -50,6 +51,7 @@ class ClusterifyWindow(Gtk.ApplicationWindow):
     tb_auto = Gtk.Template.Child()
     rv_edit = Gtk.Template.Child()
     rv_sts = Gtk.Template.Child()
+    rv_bar = Gtk.Template.Child()
     rb_comma = Gtk.Template.Child()
     rb_period = Gtk.Template.Child()
     rb_space = Gtk.Template.Child()
@@ -83,9 +85,9 @@ class ClusterifyWindow(Gtk.ApplicationWindow):
 
     def _init(self, matplotlib, plt):
         matplotlib.use('GTK3Agg')
-        plt.ioff()
-        plt.style.use('seaborn')
         from matplotlib.backends.backend_gtk3agg import FigureCanvasGTK3Agg as Canvas
+        plt.style.use('seaborn')
+        plt.ioff()
 
         self.fi_clusters = plt.figure()
         self.cv_clusters = Canvas(self.fi_clusters)
@@ -93,7 +95,7 @@ class ClusterifyWindow(Gtk.ApplicationWindow):
         self.sw_clusters.add(self.cv_clusters)
 
         self.fi_elbow = plt.figure()
-        self.fi_elbow.subplots_adjust(bottom=0.175)
+        self.fi_elbow.subplots_adjust(left=0.15, bottom=0.18)
         self.cv_elbow = Canvas(self.fi_elbow)
         self.cv_elbow.show()
         self.sw_elbow.add(self.cv_elbow)
@@ -101,9 +103,13 @@ class ClusterifyWindow(Gtk.ApplicationWindow):
     def init(self):
         import matplotlib
         import matplotlib.pyplot as plt
+
         GLib.idle_add(self._init, matplotlib, plt)
         GLib.idle_add(self.unbusy)
         GLib.idle_add(self.cycle_view)
+        GLib.idle_add(self.flexy)
+
+        self.sq.connect("notify::visible-child", self.flexy)
 
     def get_sep(self):
         if self.rb_comma.get_active():
@@ -112,6 +118,10 @@ class ClusterifyWindow(Gtk.ApplicationWindow):
             return '.'
         elif self.rb_space.get_active():
             return ' '
+
+    def flexy(self, cw=None, data=None):
+        self.rv_bar.set_reveal_child(
+            self.sq.get_visible_child() is not self.rv_sts)
 
     def partial_idle(self, cw=None):
         self.st_main.set_visible_child_name("splash")
@@ -182,7 +192,7 @@ class ClusterifyWindow(Gtk.ApplicationWindow):
                     break
 
             self.next_view = next(self.iter_view)
-        except:
+        except BaseException:
             return False
 
         self.img_view.set_from_icon_name(w.child_get_property(
@@ -247,6 +257,7 @@ class ClusterifyWindow(Gtk.ApplicationWindow):
                     projection="3d")
             else:
                 self.sp_clusters = self.fi_clusters.add_subplot()
+                self.sp_clusters.ticklabel_format(scilimits=[-3, 4])
 
             try:
                 clusters = self.data.get_clusters(ncluster)
@@ -254,10 +265,10 @@ class ClusterifyWindow(Gtk.ApplicationWindow):
                 return self.log(e)
 
             if len(cols) == 1:
-                self.fi_clusters.subplots_adjust(left=0.13, bottom=0.18)
+                self.fi_clusters.subplots_adjust(left=0.15, bottom=0.18)
                 self.sp_clusters.plot(sample[cols[0]])
             elif len(cols) == 2:
-                self.fi_clusters.subplots_adjust(left=0.15, bottom=0.2)
+                self.fi_clusters.subplots_adjust(left=0.18, bottom=0.215)
                 self.sp_clusters.scatter(sample[cols[0]], sample[cols[1]],
                                          c=clusters, cmap="rainbow")
                 self.sp_clusters.set_xlabel(cols[0])
