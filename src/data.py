@@ -49,8 +49,8 @@ class Data():
     bncluster = 0
     clusters = [None] * 10
 
-    def clear_prep(self):
-        # only for None values
+    def clear(self):
+        # None values
         # no need to clear predata
         self.data = None
         self.sample = None
@@ -58,8 +58,7 @@ class Data():
         self.scale = None
         self.sep = None
 
-    def clear_train(self):
-        # only for non-None values
+        # non-None values
         self.kmeanses = []
         self.elbow = []
         self.delbow = []
@@ -107,7 +106,7 @@ class Data():
         return result
 
     def open(self, oridata, sep=','):
-        self.clear_prep()
+        self.clear()
 
         if isinstance(oridata, pd.DataFrame):
             data = oridata
@@ -129,7 +128,7 @@ class Data():
 
     def prep(self, _sep=','):
         self.check_open()
-        self.clear_train()
+        self.clear()
 
         if _sep:
             sep = str(_sep)

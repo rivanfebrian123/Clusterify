@@ -33,7 +33,7 @@
       <packing>
         <property name="name">elbow</property>
         <property name="title" translatable="yes">Elbow</property>
-        <property name="icon-name">view-statistics</property>
+        <property name="icon-name">folder-gnome-symbolic</property>
         <property name="position">1</property>
       </packing>
     </child>

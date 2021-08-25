@@ -51,6 +51,7 @@ class ClusterifyWindow(Gtk.ApplicationWindow):
     rv_view = Gtk.Template.Child()
     img_view = Gtk.Template.Child()
     vsb = Gtk.Template.Child()
+    l_hint = Gtk.Template.Child()
 
     # On Linux, Matplotlib can only draw on ScrolledWindow for some reason
 
@@ -59,11 +60,13 @@ class ClusterifyWindow(Gtk.ApplicationWindow):
     log = None
     iter_view = None
     next_view = None
+    avail = None
 
     def __init__(self, log, **kwargs):
         Handy.init()
         super().__init__(**kwargs)
         self.log = log
+        self.avail = self.l_hint.get_label()
         Thread(target=self._init).start()
 
     def __init(self, matplotlib, plt):
@@ -72,7 +75,7 @@ class ClusterifyWindow(Gtk.ApplicationWindow):
         plt.style.use('seaborn')
         plt.ioff()
 
-        self.clustering = ClusteringStack(self.data, self.log, plt, Canvas)
+        self.clustering = ClusteringStack(self.data, self.log, self.update_avail, plt, Canvas)
 
         self.st_contents.add_titled(self.clustering, 'clustering', 'Clustering')
         self.st_contents.child_set_property(self.clustering, 'icon-name', 'starred-symbolic')
@@ -92,6 +95,12 @@ class ClusterifyWindow(Gtk.ApplicationWindow):
 
         GLib.idle_add(self.__init, matplotlib, plt)
 
+    def get_avail(self):
+        return self.avail
+
+    def has_view(self):
+        return False
+
     def flexy(self, cw=None, data=None):
         if self.rv_vs.get_reveal_child():
             self.vsb.set_reveal(
@@ -109,6 +118,7 @@ class ClusterifyWindow(Gtk.ApplicationWindow):
         self.rv_edit.set_reveal_child(False)
         self.rv_edit.set_sensitive(False)
         self.rv_view.set_reveal_child(False)
+        self.update_avail(self)
 
     def busy(self):
         self.idle()
@@ -173,15 +183,15 @@ class ClusterifyWindow(Gtk.ApplicationWindow):
 
     @Gtk.Template.Callback()
     def update_contents(self, cw=None, data=None):
-        self.cycle_view()
         c = self.st_contents.get_visible_child()
+
+        self.update_avail(c)
+        self.cycle_view()
 
         if c is self.clustering:
             self.rv_edit.set_reveal_child(True)
-            self.rv_view.set_reveal_child(True)
         else:
             self.rv_edit.set_reveal_child(False)
-            self.rv_view.set_reveal_child(False)
 
     @Gtk.Template.Callback()
     def update_view(self, cw=None, data=None):
@@ -191,3 +201,25 @@ class ClusterifyWindow(Gtk.ApplicationWindow):
             w.set_visible_child(self.next_view)
 
         self.cycle_view()
+
+    def update_avail(self, c=None):
+        if hasattr(c, 'get_avail') and hasattr(c, 'has_view'):
+            if c.get_avail() == "":
+                self.st_main.set_visible_child_name("contents")
+
+                if c.has_view():
+                    self.rv_view.set_reveal_child(True)
+                else:
+                    self.rv_view.set_reveal_child(False)
+            else:
+                self.st_main.set_visible_child_name("splash")
+                self.rv_view.set_reveal_child(False)
+
+            if c is self.st_contents.get_visible_child() or c is self:
+                self.l_hint.set_label(c.get_avail())
+            else:
+                self.l_hint.set_label("Unknown hint/object")
+        else:
+            self.rv_view.set_reveal_child(False)
+            self.l_hint.set_label("Unknown hint/object")
+            self.st_main.set_visible_child_name("splash")

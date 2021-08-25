@@ -28,7 +28,7 @@
 
 import gi
 gi.require_version('Gtk', '3.0')
-from gi.repository import Gtk
+from gi.repository import Gtk, GLib
 
 
 @Gtk.Template(resource_path='/org/gnome/Clusterify/clustering.ui')
@@ -58,12 +58,16 @@ class ClusteringStack(Gtk.Stack):
     last_cols = None
     data = None
     log = None
+    ava = None
+    txt_unavail = "Choose some columns to continue"
+    avail = ""
 
-    def __init__(self, data, log, plt, Canvas, **kwargs):
+    def __init__(self, data, log, ava, plt, Canvas, **kwargs):
         super().__init__(**kwargs)
 
         self.data = data
         self.log = log
+        self.ava = ava
 
         self.fi_clusters = plt.figure()
         self.cv_clusters = Canvas(self.fi_clusters)
@@ -84,11 +88,18 @@ class ClusteringStack(Gtk.Stack):
         elif self.rb_space.get_active():
             return ' '
 
-    def partial_idle(self, cw=None):
-        self.rv_ncluster.set_reveal_child(False)
+    def get_avail(self):
+        return self.avail
 
-    @Gtk.Template.Callback()
-    def update(self, cw=None):
+    def has_view(self):
+        return True
+
+    def partial_idle(self, cw=None):
+        self.avail = self.txt_unavail
+        self.rv_ncluster.set_reveal_child(False)
+        self.ava(self)
+
+    def _update(self, cw=None):
         # depends on partial_update_file
         cols = []
 
@@ -165,11 +176,18 @@ class ClusteringStack(Gtk.Stack):
 
         self.last_cols = cols
         self.last_ncluster = ncluster
+        self.avail = ""
+        self.ava(self)
         self.rv_ncluster.set_reveal_child(len(cols) >= 2)
         self.sb_ncluster.set_editable(not self.tb_auto.get_active())
 
     @Gtk.Template.Callback()
-    def partial_update_file(self, cw=None):
+    def update(self, cw=None):
+        # avoid crash
+        GLib.idle_add(self._update)
+
+    def _partial_update_file(self):
+        self.partial_idle()
         self.data.prep(self.get_sep())
 
         for w in self.lb_cols.get_children():
@@ -181,6 +199,10 @@ class ClusteringStack(Gtk.Stack):
             self.lb_cols.prepend(w)
 
         self.lb_cols.show_all()
+
+    @Gtk.Template.Callback()
+    def partial_update_file(self, cw=None):
+        GLib.idle_add(self._partial_update_file)
 
     @Gtk.Template.Callback()
     def unhighlight(self, cw=None):
