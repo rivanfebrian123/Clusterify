@@ -51,7 +51,7 @@ class ClusterifyWindow(Gtk.ApplicationWindow):
     rv_view = Gtk.Template.Child()
     img_view = Gtk.Template.Child()
     vsb = Gtk.Template.Child()
-    l_hint = Gtk.Template.Child()
+    st_hint = Gtk.Template.Child()
 
     # On Linux, Matplotlib can only draw on ScrolledWindow for some reason
 
@@ -66,11 +66,10 @@ class ClusterifyWindow(Gtk.ApplicationWindow):
         Handy.init()
         super().__init__(**kwargs)
         self.log = log
-        self.avail = self.l_hint.get_label()
+        self.avail = "Choose a dataset to continue"
         Thread(target=self._init).start()
 
-    def __init(self, matplotlib, plt):
-        matplotlib.use('GTK3Agg')
+    def __init(self, plt):
         from matplotlib.backends.backend_gtk3agg import FigureCanvasGTK3Agg as Canvas
         plt.style.use('seaborn')
         plt.ioff()
@@ -88,12 +87,25 @@ class ClusterifyWindow(Gtk.ApplicationWindow):
 
         self.unbusy()
         self.st_main.set_visible_child_name("splash")
+        self.set_hint(self.avail)
 
     def _init(self):
-        import matplotlib
         import matplotlib.pyplot as plt
 
-        GLib.idle_add(self.__init, matplotlib, plt)
+        GLib.idle_add(self.__init, plt)
+
+    def set_hint(self, txt):
+        if self.st_hint.get_visible_child_name() == '0':
+            n = '1'
+        else:
+            n = '0'
+
+        c = self.st_hint.get_child_by_name(n)
+        _c = self.st_hint.get_visible_child()
+
+        c.set_label(txt)
+        self.st_hint.set_visible_child(c)
+        _c.set_label('')
 
     def get_avail(self):
         return self.avail
@@ -216,10 +228,10 @@ class ClusterifyWindow(Gtk.ApplicationWindow):
                 self.rv_view.set_reveal_child(False)
 
             if c is self.st_contents.get_visible_child() or c is self:
-                self.l_hint.set_label(c.get_avail())
+                self.set_hint(c.get_avail())
             else:
-                self.l_hint.set_label("Unknown hint/object")
+                self.set_hint("Unknown hint/object")
         else:
             self.rv_view.set_reveal_child(False)
-            self.l_hint.set_label("Unknown hint/object")
+            self.set_hint("Unknown hint/object")
             self.st_main.set_visible_child_name("splash")

@@ -1,5 +1,6 @@
 name: Deploy MSYS2
-# on: [push, pull_request]
+#on: [push, pull_request]
+on: [pull_request]
 
 jobs:
   build:
