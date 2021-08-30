@@ -30,12 +30,14 @@ import sys
 import traceback
 import gi
 gi.require_version('Gtk', '3.0')
-from gi.repository import Gtk, Gio, GLib, Gdk
+gi.require_version('Handy', '1')
+from gi.repository import Gtk, Gio, GLib, Gdk, Handy
 from .window import ClusterifyWindow
 
 
 class Application(Gtk.Application):
     def __init__(self):
+        Handy.init()
         super().__init__(application_id='org.gnome.Clusterify',
                          flags=Gio.ApplicationFlags.FLAGS_NONE)
         self.win = self.props.active_window

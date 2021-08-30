@@ -40,9 +40,9 @@ class ClusteringStack(Gtk.Stack):
     rb_comma = Gtk.Template.Child()
     rb_period = Gtk.Template.Child()
     rb_space = Gtk.Template.Child()
-    mb_edit = Gtk.Template.Child()
     lb_cols = Gtk.Template.Child()
     tb_auto = Gtk.Template.Child()
+    b_sidebar = Gtk.Template.Child()
 
     sw_clusters = Gtk.Template.Child()
     fi_clusters = None
@@ -94,10 +94,13 @@ class ClusteringStack(Gtk.Stack):
     def has_view(self):
         return True
 
+    def has_edit(self):
+        return True
+
     def partial_idle(self, cw=None):
         self.avail = self.txt_unavail
         self.rv_ncluster.set_reveal_child(False)
-        self.ava(self)
+        self.ava()
 
     def _update(self, cw=None):
         # depends on partial_update_file
@@ -177,7 +180,7 @@ class ClusteringStack(Gtk.Stack):
         self.last_cols = cols
         self.last_ncluster = ncluster
         self.avail = ""
-        self.ava(self)
+        self.ava()
         self.rv_ncluster.set_reveal_child(len(cols) >= 2)
         self.sb_ncluster.set_editable(not self.tb_auto.get_active())
 
@@ -204,6 +207,6 @@ class ClusteringStack(Gtk.Stack):
     def partial_update_file(self, cw=None):
         GLib.idle_add(self._partial_update_file)
 
-    @Gtk.Template.Callback()
-    def unhighlight(self, cw=None):
-        self.mb_edit.get_style_context().remove_class('h')
+    # @Gtk.Template.Callback()
+    # def unhighlight(self, cw=None):
+    #     self.mb_edit.get_style_context().remove_class('h')

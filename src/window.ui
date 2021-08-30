@@ -70,148 +70,168 @@
         <property name="can-focus">False</property>
         <property name="orientation">vertical</property>
         <child>
-          <object class="GtkStack" id="st_main">
+          <object class="HdyLeaflet" id="ll_main">
             <property name="visible">True</property>
             <property name="can-focus">False</property>
-            <property name="transition-duration">500</property>
-            <property name="transition-type">crossfade</property>
             <child>
-              <object class="GtkSpinner" id="sp">
-                <property name="width-request">64</property>
-                <property name="height-request">64</property>
+              <object class="GtkRevealer" id="rv_sidebar">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
-                <property name="halign">center</property>
-                <property name="valign">center</property>
-                <property name="active">True</property>
+                <property name="transition-type">slide-left</property>
+                <property name="transition-duration">350</property>
+                <child>
+                  <placeholder/>
+                </child>
               </object>
-              <packing>
-                <property name="name">spinner</property>
-                <property name="title" translatable="yes">spinner</property>
-              </packing>
             </child>
             <child>
-              <object class="GtkBox">
+              <object class="GtkStack" id="st_main">
+                <property name="width-request">375</property>
+                <property name="height-request">375</property>
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
-                <property name="halign">center</property>
-                <property name="valign">center</property>
-                <property name="orientation">vertical</property>
-                <property name="spacing">20</property>
+                <property name="hexpand">True</property>
+                <property name="transition-duration">500</property>
+                <property name="transition-type">crossfade</property>
                 <child>
-                  <object class="GtkImage">
+                  <object class="GtkStack" id="st_contents">
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
-                    <property name="pixel-size">170</property>
-                    <property name="icon-name">system-search</property>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">True</property>
-                    <property name="position">0</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkStack" id="st_hint">
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <property name="margin-start">20</property>
-                    <property name="margin-end">20</property>
-                    <property name="margin-bottom">45</property>
-                    <property name="transition-duration">1000</property>
-                    <property name="transition-type">slide-up</property>
+                    <property name="transition-duration">350</property>
+                    <property name="transition-type">crossfade</property>
                     <child>
-                      <object class="GtkLabel">
+                      <object class="GtkStack" id="st_exploratory">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
-                        <property name="justify">center</property>
-                        <property name="wrap">True</property>
-                        <attributes>
-                          <attribute name="weight" value="light"/>
-                          <attribute name="scale" value="1.5"/>
-                        </attributes>
+                        <property name="transition-duration">350</property>
+                        <property name="transition-type">crossfade</property>
+                        <child>
+                          <placeholder/>
+                        </child>
                       </object>
                       <packing>
-                        <property name="name">0</property>
-                        <property name="title" translatable="yes">0</property>
+                        <property name="name">exploratory</property>
+                        <property name="title" translatable="yes">Exploratory</property>
+                        <property name="icon-name">bookmark-new-symbolic</property>
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkLabel">
+                      <object class="GtkStack" id="st_association">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
-                        <property name="justify">center</property>
-                        <property name="wrap">True</property>
-                        <attributes>
-                          <attribute name="weight" value="light"/>
-                          <attribute name="scale" value="1.5"/>
-                        </attributes>
+                        <property name="transition-duration">350</property>
+                        <property name="transition-type">crossfade</property>
+                        <child>
+                          <placeholder/>
+                        </child>
                       </object>
                       <packing>
-                        <property name="name">1</property>
-                        <property name="title" translatable="yes">1</property>
+                        <property name="name">association</property>
+                        <property name="title" translatable="yes">Association</property>
+                        <property name="icon-name">send-to-symbolic</property>
                         <property name="position">1</property>
                       </packing>
                     </child>
                   </object>
                   <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">True</property>
-                    <property name="position">1</property>
-                  </packing>
-                </child>
-              </object>
-              <packing>
-                <property name="name">splash</property>
-                <property name="title" translatable="yes">splash</property>
-                <property name="position">1</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkStack" id="st_contents">
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
-                <property name="transition-duration">350</property>
-                <property name="transition-type">crossfade</property>
-                <child>
-                  <object class="GtkStack" id="st_exploratory">
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <property name="transition-duration">350</property>
-                    <property name="transition-type">crossfade</property>
-                    <child>
-                      <placeholder/>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="name">exploratory</property>
-                    <property name="title" translatable="yes">Exploratory</property>
-                    <property name="icon-name">bookmark-new-symbolic</property>
+                    <property name="name">contents</property>
+                    <property name="title" translatable="yes">contents</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkStack" id="st_association">
+                  <object class="GtkSpinner" id="sp">
+                    <property name="width-request">64</property>
+                    <property name="height-request">64</property>
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
-                    <property name="transition-duration">350</property>
-                    <property name="transition-type">crossfade</property>
-                    <child>
-                      <placeholder/>
-                    </child>
+                    <property name="halign">center</property>
+                    <property name="valign">center</property>
+                    <property name="active">True</property>
                   </object>
                   <packing>
-                    <property name="name">association</property>
-                    <property name="title" translatable="yes">Association</property>
-                    <property name="icon-name">send-to-symbolic</property>
+                    <property name="name">spinner</property>
+                    <property name="title" translatable="yes">spinner</property>
                     <property name="position">1</property>
                   </packing>
                 </child>
+                <child>
+                  <object class="GtkBox">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="halign">center</property>
+                    <property name="valign">center</property>
+                    <property name="orientation">vertical</property>
+                    <property name="spacing">20</property>
+                    <child>
+                      <object class="GtkImage">
+                        <property name="visible">True</property>
+                        <property name="can-focus">False</property>
+                        <property name="pixel-size">170</property>
+                        <property name="icon-name">system-search</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkStack" id="st_hint">
+                        <property name="visible">True</property>
+                        <property name="can-focus">False</property>
+                        <property name="margin-start">20</property>
+                        <property name="margin-end">20</property>
+                        <property name="margin-bottom">45</property>
+                        <property name="transition-duration">1000</property>
+                        <property name="transition-type">slide-up</property>
+                        <child>
+                          <object class="GtkLabel">
+                            <property name="visible">True</property>
+                            <property name="can-focus">False</property>
+                            <property name="justify">center</property>
+                            <property name="wrap">True</property>
+                            <attributes>
+                              <attribute name="weight" value="light"/>
+                              <attribute name="scale" value="1.5"/>
+                            </attributes>
+                          </object>
+                          <packing>
+                            <property name="name">0</property>
+                            <property name="title" translatable="yes">0</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkLabel">
+                            <property name="visible">True</property>
+                            <property name="can-focus">False</property>
+                            <property name="justify">center</property>
+                            <property name="wrap">True</property>
+                            <attributes>
+                              <attribute name="weight" value="light"/>
+                              <attribute name="scale" value="1.5"/>
+                            </attributes>
+                          </object>
+                          <packing>
+                            <property name="name">1</property>
+                            <property name="title" translatable="yes">1</property>
+                            <property name="position">1</property>
+                          </packing>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="name">splash</property>
+                    <property name="title" translatable="yes">splash</property>
+                    <property name="position">2</property>
+                  </packing>
+                </child>
               </object>
-              <packing>
-                <property name="name">contents</property>
-                <property name="title" translatable="yes">contents</property>
-                <property name="position">2</property>
-              </packing>
             </child>
           </object>
           <packing>
@@ -243,6 +263,7 @@
         <property name="title">Clusterify</property>
         <property name="has-subtitle">False</property>
         <property name="custom-title">sq</property>
+        <property name="spacing">4</property>
         <property name="show-close-button">True</property>
         <property name="transition-duration">500</property>
         <child>
@@ -250,10 +271,11 @@
             <property name="visible">True</property>
             <property name="sensitive">False</property>
             <property name="can-focus">False</property>
+            <property name="focus-on-click">False</property>
             <property name="filter">ff</property>
             <property name="preview-widget-active">False</property>
             <property name="title" translatable="yes"/>
-            <property name="width-chars">4</property>
+            <property name="width-chars">6</property>
             <signal name="file-set" handler="update_file" swapped="no"/>
           </object>
         </child>
@@ -262,9 +284,20 @@
             <property name="visible">True</property>
             <property name="can-focus">False</property>
             <property name="transition-type">slide-left</property>
-            <property name="transition-duration">1000</property>
+            <property name="transition-duration">350</property>
             <child>
-              <placeholder/>
+              <object class="GtkToggleButton" id="tb_edit">
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="receives-default">True</property>
+                <child>
+                  <object class="GtkImage" id="img_edit">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="icon-name">add</property>
+                  </object>
+                </child>
+              </object>
             </child>
           </object>
           <packing>
@@ -299,17 +332,48 @@
             <property name="transition-type">slide-right</property>
             <property name="transition-duration">350</property>
             <child>
-              <object class="GtkButton" id="b_view">
+              <object class="GtkStack" id="st_view">
                 <property name="visible">True</property>
-                <property name="can-focus">True</property>
-                <property name="receives-default">True</property>
-                <signal name="clicked" handler="update_view" swapped="no"/>
+                <property name="can-focus">False</property>
+                <property name="hhomogeneous">False</property>
+                <property name="transition-duration">350</property>
+                <property name="transition-type">crossfade</property>
+                <property name="interpolate-size">True</property>
                 <child>
-                  <object class="GtkImage" id="img_view">
+                  <object class="GtkButton" id="b_view">
                     <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <property name="icon-name">add</property>
+                    <property name="can-focus">True</property>
+                    <property name="receives-default">True</property>
+                    <signal name="clicked" handler="update_view" swapped="no"/>
+                    <child>
+                      <object class="GtkImage" id="img_view">
+                        <property name="visible">True</property>
+                        <property name="can-focus">False</property>
+                        <property name="icon-name">add</property>
+                      </object>
+                    </child>
                   </object>
+                  <packing>
+                    <property name="name">view</property>
+                    <property name="title" translatable="yes">view</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkButton" id="b_done">
+                    <property name="label" translatable="yes">Done</property>
+                    <property name="visible">True</property>
+                    <property name="can-focus">True</property>
+                    <property name="receives-default">True</property>
+                    <signal name="clicked" handler="done" swapped="no"/>
+                    <style>
+                      <class name="suggested-action"/>
+                    </style>
+                  </object>
+                  <packing>
+                    <property name="name">done</property>
+                    <property name="title" translatable="yes">done</property>
+                    <property name="position">1</property>
+                  </packing>
                 </child>
               </object>
             </child>
@@ -338,6 +402,8 @@
           <object class="HdyViewSwitcher">
             <property name="visible">True</property>
             <property name="can-focus">False</property>
+            <property name="margin-left">5</property>
+            <property name="margin-right">5</property>
             <property name="stack">st_contents</property>
             <signal name="button-release-event" handler="update_contents" swapped="no"/>
           </object>

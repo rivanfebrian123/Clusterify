@@ -28,7 +28,6 @@
 
 import gi
 gi.require_version('Gtk', '3.0')
-gi.require_version('Handy', '1')
 from gi.repository import Gtk, GLib, Handy
 from threading import Thread
 from itertools import cycle
@@ -45,11 +44,16 @@ class ClusterifyWindow(Gtk.ApplicationWindow):
     sp = Gtk.Template.Child()
     sq = Gtk.Template.Child()
     st_main = Gtk.Template.Child()
+    ll_main = Gtk.Template.Child()
     st_contents = Gtk.Template.Child()
     rv_edit = Gtk.Template.Child()
+    tb_edit = Gtk.Template.Child()
+    img_edit = Gtk.Template.Child()
     rv_vs = Gtk.Template.Child()
     rv_view = Gtk.Template.Child()
+    st_view = Gtk.Template.Child()
     img_view = Gtk.Template.Child()
+    rv_sidebar = Gtk.Template.Child()
     vsb = Gtk.Template.Child()
     st_hint = Gtk.Template.Child()
 
@@ -63,7 +67,6 @@ class ClusterifyWindow(Gtk.ApplicationWindow):
     avail = None
 
     def __init__(self, log, **kwargs):
-        Handy.init()
         super().__init__(**kwargs)
         self.log = log
         self.avail = "Choose a dataset to continue"
@@ -78,12 +81,17 @@ class ClusterifyWindow(Gtk.ApplicationWindow):
 
         self.st_contents.add_titled(self.clustering, 'clustering', 'Clustering')
         self.st_contents.child_set_property(self.clustering, 'icon-name', 'starred-symbolic')
-        self.rv_edit.add(self.clustering.mb_edit)
+        self.rv_sidebar.add(self.clustering.b_sidebar)
 
         self.flexy()
 
+        self.ll_main.connect("notify::folded", self.flexy)
         self.sq.connect("notify::visible-child", self.flexy)
         self.rv_vs.connect("notify::reveal-child", self.flexy)
+        self.tb_edit.bind_property("active", self.rv_sidebar, "reveal-child")
+        self.rv_edit.bind_property("reveal-child", self.rv_edit, "sensitive")
+        self.ll_main.set_transition_type(Handy.LeafletTransitionType.SLIDE)
+        self.ll_main.set_mode_transition_duration(350)
 
         self.unbusy()
         self.st_main.set_visible_child_name("splash")
@@ -120,6 +128,24 @@ class ClusterifyWindow(Gtk.ApplicationWindow):
         else:
             self.vsb.set_reveal(False)
 
+        if self.ll_main.get_folded() or self.vsb.get_reveal():
+            if self.tb_edit.get_active():
+                self.st_view.set_visible_child_name('done')
+            else:
+                self.st_view.set_visible_child_name('view')
+            self.img_edit.set_from_icon_name('edit-symbolic',
+                Gtk.IconSize.BUTTON)
+        else:
+            self.st_view.set_visible_child_name('view')
+            self.img_edit.set_from_icon_name('view-sidebar-symbolic',
+                Gtk.IconSize.BUTTON)
+
+        self.update_avail()
+
+    @Gtk.Template.Callback()
+    def done(self, cw=None):
+        self.tb_edit.set_active(False)
+
     def partial_idle(self, cw=None):
         self.st_main.set_visible_child_name("splash")
         self.rv_vs.set_reveal_child(False)
@@ -128,9 +154,9 @@ class ClusterifyWindow(Gtk.ApplicationWindow):
     def idle(self, cw=None):
         self.partial_idle()
         self.rv_edit.set_reveal_child(False)
-        self.rv_edit.set_sensitive(False)
         self.rv_view.set_reveal_child(False)
-        self.update_avail(self)
+        self.rv_sidebar.set_reveal_child(False)
+        self.update_avail()
 
     def busy(self):
         self.idle()
@@ -154,9 +180,6 @@ class ClusterifyWindow(Gtk.ApplicationWindow):
         if self.fc.get_filename():
             self.partial_update_file()
             self.rv_vs.set_reveal_child(True)
-            self.rv_edit.set_reveal_child(True)
-            self.rv_edit.set_sensitive(True)
-            self.st_main.set_visible_child_name("contents")
         else:
             self.idle()
 
@@ -195,15 +218,20 @@ class ClusterifyWindow(Gtk.ApplicationWindow):
 
     @Gtk.Template.Callback()
     def update_contents(self, cw=None, data=None):
-        c = self.st_contents.get_visible_child()
-
-        self.update_avail(c)
+        self.update_avail()
         self.cycle_view()
 
-        if c is self.clustering:
-            self.rv_edit.set_reveal_child(True)
-        else:
-            self.rv_edit.set_reveal_child(False)
+        c = self.st_contents.get_visible_child()
+
+        if self.fc.get_filename():
+            if c is self.clustering:
+                self.rv_edit.set_reveal_child(True)
+
+                if self.tb_edit.get_active():
+                    self.rv_sidebar.set_reveal_child(True)
+            else:
+                self.rv_edit.set_reveal_child(False)
+                self.rv_sidebar.set_reveal_child(False)
 
     @Gtk.Template.Callback()
     def update_view(self, cw=None, data=None):
@@ -214,23 +242,28 @@ class ClusterifyWindow(Gtk.ApplicationWindow):
 
         self.cycle_view()
 
-    def update_avail(self, c=None):
-        if hasattr(c, 'get_avail') and hasattr(c, 'has_view'):
-            if c.get_avail() == "":
-                self.st_main.set_visible_child_name("contents")
+    def update_avail(self):
+        c = self.st_contents.get_visible_child()
 
-                if c.has_view():
-                    self.rv_view.set_reveal_child(True)
-                else:
-                    self.rv_view.set_reveal_child(False)
+        if hasattr(c, 'has_edit'):
+            self.rv_edit.set_reveal_child(not self.ll_main.get_folded())
+        else:
+            self.rv_edit.set_reveal_child(False)
+
+        if hasattr(c, 'get_avail') and hasattr(c, 'has_view'):
+            if self.ll_main.get_folded() and c.has_view():
+                self.rv_view.set_reveal_child(True)
+            elif c.has_view() and c.get_avail() == "":
+                self.rv_view.set_reveal_child(True)
             else:
-                self.st_main.set_visible_child_name("splash")
                 self.rv_view.set_reveal_child(False)
 
-            if c is self.st_contents.get_visible_child() or c is self:
-                self.set_hint(c.get_avail())
+            if c.get_avail() == "":
+                self.st_main.set_visible_child_name("contents")
             else:
-                self.set_hint("Unknown hint/object")
+                self.st_main.set_visible_child_name("splash")
+
+            self.set_hint(c.get_avail())
         else:
             self.rv_view.set_reveal_child(False)
             self.set_hint("Unknown hint/object")
