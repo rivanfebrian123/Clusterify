@@ -90,6 +90,7 @@ class ClusterifyWindow(Gtk.ApplicationWindow):
         self.rv_vs.connect("notify::reveal-child", self.flexy)
         self.tb_edit.bind_property("active", self.rv_sidebar, "reveal-child")
         self.rv_edit.bind_property("reveal-child", self.rv_edit, "sensitive")
+        self.rv_sidebar.bind_property("reveal-child", self.rv_sidebar, "sensitive")
         self.ll_main.set_transition_type(Handy.LeafletTransitionType.SLIDE)
         self.ll_main.set_mode_transition_duration(350)
 
@@ -147,16 +148,15 @@ class ClusterifyWindow(Gtk.ApplicationWindow):
         self.tb_edit.set_active(False)
 
     def partial_idle(self, cw=None):
+        self.clustering.partial_idle()
         self.st_main.set_visible_child_name("splash")
         self.rv_vs.set_reveal_child(False)
-        self.clustering.partial_idle()
-
-    def idle(self, cw=None):
-        self.partial_idle()
         self.rv_edit.set_reveal_child(False)
         self.rv_view.set_reveal_child(False)
         self.rv_sidebar.set_reveal_child(False)
-        self.update_avail()
+
+    def idle(self, cw=None):
+        self.partial_idle()
 
     def busy(self):
         self.idle()
